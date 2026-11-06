@@ -1,10 +1,12 @@
+
 from rest_framework import serializers, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from .models import Booking
 from .rules import exceeds_limit, overlaps
-
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,3 +26,14 @@ def create_booking(request):
             return Response({"error": "room taken"}, status=status.HTTP_409_CONFLICT)
     s.save()
     return Response(s.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+@renderer_classes([JSONRenderer])
+def api_status(request):
+    return Response({
+        "status": "ok",
+        "service": "RoomBook API",
+        "version": "1.0"
+    })
